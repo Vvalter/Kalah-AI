@@ -7,7 +7,7 @@ import info.kwarc.teaching.AI.Kalah.Agent;
  */
 public class BilligesPaper extends SuperAgent {
     @Override
-    public int getHeuristic(int[] board) {
+    public int getHeuristic(short[] board) {
         int res = (board[n] - board[2*n+1]) * 4 ;
         for (int i = 0; i < n; i++) {
             if (board[i] == 2 * n + 1) {

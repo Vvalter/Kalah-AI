@@ -1,7 +1,6 @@
 package info.kwarc.teaching.AI.Kalah
 
 import scala.collection.mutable
-import info.kwarc.teaching.AI.Kalah.WS1617.agents.SuperAgent;
 
 /**
   * Created by jazzpirate on 08.11.16.

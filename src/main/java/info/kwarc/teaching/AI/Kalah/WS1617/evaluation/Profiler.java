@@ -16,18 +16,21 @@ import java.util.List;
 public class Profiler {
     public static void main(String[] args) {
         int[] board = {
-                6,6,6,6,6,6,0,
-                6,6,6,6,6,6,0
+                4,4,3,3,0,
+                4,4,3,3,0
         };
+
         SuperAgent a = new StandardAgent();
         doTestRun(a, board);
         a.timeoutMove();
     }
 
     private static void doTestRun(Agent a, int board[]) {
+        long start = System.currentTimeMillis();
         Board stub = new BoardStub((board.length-2)/2, board[0], board, a, new RandomPlayer("RandomPlayer"));
         a.init(stub, true);
         a.move();
+        System.err.format("Finished after %,d milliseconds\n", (System.currentTimeMillis()-start));
     }
 
     static class BoardStub extends Board {

@@ -16,6 +16,7 @@ public abstract class SuperAgentWithoutAlphaBeta extends SuperAgent {
 //        System.out.println(SuperAgent.getMiniMaxMove(board3, 10000));
     }
 
+    /*
     @Override
     public int getMiniMaxMove(int[] board, int depth) {
         if (isFinished(board)) return getUtility(board);
@@ -96,4 +97,5 @@ public abstract class SuperAgentWithoutAlphaBeta extends SuperAgent {
             return minValue;
         }
     }
+    */
 }

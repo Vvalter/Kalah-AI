@@ -6,7 +6,7 @@ package info.kwarc.teaching.AI.Kalah.WS1617.agents;
 public class StandardAgent extends SuperAgent{
 
     @Override
-    public int getHeuristic(int[] board) {
+    public int getHeuristic(short[] board) {
         if (board[n] - board[2*n+1] > numSeedsDividedByTwo) {
             return Integer.MAX_VALUE-1;
         }

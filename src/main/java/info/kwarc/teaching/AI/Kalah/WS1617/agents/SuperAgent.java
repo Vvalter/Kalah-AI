@@ -16,7 +16,7 @@ public abstract class SuperAgent extends Agent {
     private int maxDepth;
     private Board board;
     protected int n, numSeedsDividedByTwo;
-    protected int cutoffDepth = 1000;
+    protected int cutoffDepth = 30;
     private boolean playerOne;
     private int bestMove;
 
@@ -40,7 +40,7 @@ public abstract class SuperAgent extends Agent {
         maxDepth = 0;
         long start = System.currentTimeMillis();
         for (int depth = 0; depth < cutoffDepth; depth++) {
-            int[] state = boardToArray(board, playerOne);
+            short[] state = boardToArray(board, playerOne);
             bestMove = getMiniMaxMove(state, depth) + 1;
             maxDepth = depth;
             allExploredNodes += exploredNodes;
@@ -55,33 +55,33 @@ public abstract class SuperAgent extends Agent {
         return res;
     }
 
-    public int[] boardToArray(Board b, boolean playerOne) {
+    public short[] boardToArray(Board b, boolean playerOne) {
         Tuple4<Iterable<Object>, Iterable<Object>, Object, Object> state = b.getState();
 
         List<Object> ourHouses;
-        Integer ourStore;
+        Short ourStore;
         List<Object> theirHouses;
-        Integer theirStore;
+        Short theirStore;
         if (playerOne) {
             ourHouses = iterableToList(state._1());
-            ourStore = (Integer) state._3();
+            ourStore = ((Integer) state._3()).shortValue();
             theirHouses = iterableToList(state._2());
-            theirStore = (Integer) state._4();
+            theirStore = ((Integer) state._4()).shortValue();
         } else {
             ourHouses = iterableToList(state._2());
-            ourStore = (Integer) state._4();
+            ourStore = ((Integer) state._4()).shortValue();
             theirHouses = iterableToList(state._1());
-            theirStore = (Integer) state._3();
+            theirStore = ((Short) state._3()).shortValue();
         }
 
         // 0..n-1 our houses
         // n our store
         // n+1..2*n their houses
         // 2*n+1 their store
-        int res[] = new int[2 * n + 2];
+        short res[] = new short[2 * n + 2];
         for (int i = 0; i < n; i++) {
-            res[i] = (int) ourHouses.get(i);
-            res[i + n + 1] = (int) theirHouses.get(i);
+            res[i] = ((Integer) ourHouses.get(i)).shortValue();
+            res[i + n + 1] = ((Integer) theirHouses.get(i)).shortValue();
         }
         res[n] = ourStore;
         res[2 * n + 1] = theirStore;
@@ -97,7 +97,7 @@ public abstract class SuperAgent extends Agent {
      *              can be an enemy move too.
      * @return indicating if one is allowed to move again
      */
-    public static boolean makeMove(int n, int[] board, int house, int[] new_board) {
+    public static boolean makeMove(int n, short[] board, int house, short[] new_board) {
         assert house != n && house != 2 * n + 1 : "house is a store";
         assert house >= 0 && house <= 2 * n : "house is too big or too small";
 
@@ -154,7 +154,7 @@ public abstract class SuperAgent extends Agent {
         return currentPosition == ourStore;
     }
 
-    public boolean isFinished(int[] board) {
+    public boolean isFinished(short[] board) {
         boolean firstCase = true, secondCase = true;
         for (int i = 0; i < n; i++) {
             if (board[i] != 0) {
@@ -170,7 +170,7 @@ public abstract class SuperAgent extends Agent {
         return true;
     }
 
-    public int getUtility(int[] board) {
+    public int getUtility(short[] board) {
         assert isFinished(board);
         int ours = board[n];
         int theirs = board[2 * n + 1];
@@ -189,18 +189,18 @@ public abstract class SuperAgent extends Agent {
         }
     }
 
-    public abstract int getHeuristic(int[] board);
+    public abstract int getHeuristic(short[] board);
 
-    public int getMiniMaxMove(int[] board, int depth) {
+    public int getMiniMaxMove(short[] board, int depth) {
         if (isFinished(board)) return getUtility(board);
         int maxVal = Integer.MIN_VALUE;
         int maxMove = 0;
 
         int alpha = Integer.MIN_VALUE;
         int beta = Integer.MAX_VALUE;
+        short[] newBoard = new short[board.length];
         for (int i = 0; i < n; i++) {
             if (board[i] > 0) {
-                int[] newBoard = new int[board.length];
                 boolean again = makeMove(n, board, i, newBoard);
                 int utility;
                 if (again) {
@@ -234,15 +234,15 @@ public abstract class SuperAgent extends Agent {
         return maxMove;
     }
 
-    public int getMaxUtility(int[] board, int depth, int alpha, int beta) {
+    public int getMaxUtility(short[] board, int depth, int alpha, int beta) {
         exploredNodes ++;
         if (isFinished(board)) return getUtility(board);
         if (depth <= 0) return getHeuristic(board);
 
         int maxVal = Integer.MIN_VALUE;
+        short[] newBoard = new short[board.length];
         for (int i = 0; i < n; i++) {
             if (board[i] > 0) {
-                int[] newBoard = new int[board.length];
                 boolean again = makeMove(n, board, i, newBoard);
                 int utility;
                 if (again) {
@@ -268,15 +268,15 @@ public abstract class SuperAgent extends Agent {
         }
     }
 
-    public int getMinUtility(int[] board, int depth, int alpha, int beta) {
+    public int getMinUtility(short[] board, int depth, int alpha, int beta) {
         exploredNodes ++;
         if (isFinished(board)) return getUtility(board);
         if (depth <= 0) return getHeuristic(board);
 
         int minValue = Integer.MAX_VALUE;
+        short[] newBoard = new short[board.length];
         for (int i = n + 1; i < 2 * n + 1; i++) {
             if (board[i] > 0) {
-                int[] newBoard = new int[board.length];
                 boolean again = makeMove(n, board, i, newBoard);
                 int utility;
                 if (again) {
