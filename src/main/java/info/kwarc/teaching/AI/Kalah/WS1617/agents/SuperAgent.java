@@ -21,7 +21,9 @@ public abstract class SuperAgent extends Agent {
     private boolean playerOne;
     private int bestMove;
     private boolean finished;
-    public boolean futility = true;
+
+    public boolean futility;
+    public boolean both;
 
 
     @Override
@@ -257,6 +259,17 @@ public abstract class SuperAgent extends Agent {
             return Integer.MAX_VALUE-1;
         }
 
+        if (futility) {
+            int lower = board[n] - numSeedsDividedByTwo;
+            int upper = numSeedsDividedByTwo - board[2 * n + 1];
+
+            if (lower > beta) {
+                return beta;
+            } else if (both && upper < alpha) {
+                return alpha;
+            }
+        }
+
         int maxVal = Integer.MIN_VALUE;
         short[] newBoard = new short[board.length];
         for (int i = 0; i < n; i++) {
@@ -294,6 +307,16 @@ public abstract class SuperAgent extends Agent {
 
         if (board[2*n+1] > numSeedsDividedByTwo) {
             return Integer.MIN_VALUE+1;
+        }
+        if (futility) {
+            int lower = board[n] - numSeedsDividedByTwo;
+            int upper = numSeedsDividedByTwo - board[2 * n + 1];
+
+            if (both && lower > beta) {
+                return beta;
+            } else if (upper < alpha) {
+                return alpha;
+            }
         }
 
         int minValue = Integer.MAX_VALUE;

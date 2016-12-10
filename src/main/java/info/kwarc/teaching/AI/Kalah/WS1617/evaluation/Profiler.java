@@ -3,8 +3,8 @@ package info.kwarc.teaching.AI.Kalah.WS1617.evaluation;
 import info.kwarc.teaching.AI.Kalah.Agent;
 import info.kwarc.teaching.AI.Kalah.Board;
 import info.kwarc.teaching.AI.Kalah.RandomPlayer;
-import info.kwarc.teaching.AI.Kalah.WS1617.agents.StandardAgent;
 import info.kwarc.teaching.AI.Kalah.WS1617.agents.SuperAgent;
+import info.kwarc.teaching.AI.Kalah.WS1617.agents.VariableDepthAgent;
 import scala.Tuple4;
 
 import java.util.ArrayList;
@@ -16,8 +16,10 @@ import java.util.List;
 public class Profiler {
     public static void main(String[] args) {
         int[] board = {
-                3,3,3,3,0,
-                3,3,3,3,0
+//                4,4,4,4,0,
+//                4,4,4,4,0
+                4, 4, 4, 0,
+                4, 4, 4, 0
 //                6,6,6,6,6,6,0,
 //                6,6,6,6,6,6,0
 //            1,1,1,1,1,0,
@@ -25,24 +27,27 @@ public class Profiler {
         };
 
         for (int i = 0; i < 3; i++) {
-        SuperAgent a = new StandardAgent();
-        a.futility = true;
-        doTestRun(a, board);
-        a.timeoutMove();
-        a = new StandardAgent();
-        a.futility = false;
-        doTestRun(a, board);
-        a.timeoutMove();
-
+            SuperAgent a = new VariableDepthAgent(14, 1);
+            System.err.println("futility both");
+            a.futility = true;
+            a.both = true;
+            doTestRun(a, board);
+            System.err.println("only futility");
+            a.futility = true;
+            a.both = false;
+            doTestRun(a, board);
+            System.err.println("no futility");
+            a.futility = false;
+            doTestRun(a, board);
         }
     }
 
     private static void doTestRun(Agent a, int board[]) {
         long start = System.currentTimeMillis();
-        Board stub = new BoardStub((board.length-2)/2, board[0], board, a, new RandomPlayer("RandomPlayer"));
+        Board stub = new BoardStub((board.length - 2) / 2, board[0], board, a, new RandomPlayer("RandomPlayer"));
         a.init(stub, true);
         a.move();
-        System.err.format("Finished after %,d milliseconds\n", (System.currentTimeMillis()-start));
+        System.err.format("Finished after %,d milliseconds\n", (System.currentTimeMillis() - start));
     }
 
     static class BoardStub extends Board {
@@ -64,7 +69,7 @@ public class Profiler {
         @Override
         public Tuple4<Iterable<Object>, Iterable<Object>, Object, Object> getState() {
             Object storePlayer1 = internalBoard[n];
-            Object storePlayer2 = internalBoard[2*n+1];
+            Object storePlayer2 = internalBoard[2 * n + 1];
             return new Tuple4<>(getHouses(a), getHouses(b), storePlayer1, storePlayer2);
         }
 

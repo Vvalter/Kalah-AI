@@ -21,13 +21,13 @@ import java.util.stream.Stream;
 public class SuperAgentTest {
     public static void main(String[] args) {
 //        testAlphaBeta();
-        Agent a = new VariableDepthAgent(10, 1);
+        Agent a = new VariableDepthAgent(30, 1);
         Agent b = new RandomPlayer("Random");
 
 //        Agent tmp = a;a = b; b = tmp;
 
         squelchStdout();
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 1; i++) {
             battle(a, b);
         }
 
@@ -263,7 +263,7 @@ public class SuperAgentTest {
 
     @Deprecated
     private static void battle(Agent a, Agent b) {
-        Game g = new Game(a, b, 6, 6);
+        Game g = new Game(a, b, 5, 5);
         Tuple2<Object, Object> scores = g.play(true);
         System.out.println(scores._1() + " : " + scores._2());
 
