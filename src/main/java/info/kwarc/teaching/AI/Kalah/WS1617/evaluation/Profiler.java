@@ -16,13 +16,25 @@ import java.util.List;
 public class Profiler {
     public static void main(String[] args) {
         int[] board = {
-                4,4,3,3,0,
-                4,4,3,3,0
+                3,3,3,3,0,
+                3,3,3,3,0
+//                6,6,6,6,6,6,0,
+//                6,6,6,6,6,6,0
+//            1,1,1,1,1,0,
+//                1,1,1,1,1,0
         };
 
+        for (int i = 0; i < 3; i++) {
         SuperAgent a = new StandardAgent();
+        a.futility = true;
         doTestRun(a, board);
         a.timeoutMove();
+        a = new StandardAgent();
+        a.futility = false;
+        doTestRun(a, board);
+        a.timeoutMove();
+
+        }
     }
 
     private static void doTestRun(Agent a, int board[]) {

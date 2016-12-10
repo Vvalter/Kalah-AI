@@ -7,9 +7,10 @@ public class StandardAgent extends SuperAgent{
 
     @Override
     public int getHeuristic(short[] board) {
-        if (board[n] - board[2*n+1] > numSeedsDividedByTwo) {
-            return Integer.MAX_VALUE-1;
-        }
         return board[n] - board[2 * n + 1];
+    }
+
+    public static void main(String[] args) {
+        SuperAgentTest.isOptimal(new StandardAgent(), 80);
     }
 }

@@ -16,9 +16,13 @@ public abstract class SuperAgent extends Agent {
     private int maxDepth;
     private Board board;
     protected int n, numSeedsDividedByTwo;
-    protected int cutoffDepth = 30;
+    protected int cutoffDepth = 16;
+    protected int stepSize = 1;
     private boolean playerOne;
     private int bestMove;
+    private boolean finished;
+    public boolean futility = true;
+
 
     @Override
     public void init(Board board, boolean playerOne) {
@@ -27,7 +31,7 @@ public abstract class SuperAgent extends Agent {
         this.board = board;
         this.playerOne = playerOne;
         this.n = board.houses();
-        this.numSeedsDividedByTwo = this.n * ((int)board.getHouses(this).iterator().next());
+        this.numSeedsDividedByTwo = this.n * ((int) board.getHouses(this).iterator().next());
 
         // TODO precompute openings or end games
     }
@@ -35,17 +39,24 @@ public abstract class SuperAgent extends Agent {
     @Override
     public int move() {
         allExploredNodes = 0;
-        exploredNodes = 0;
         bestMove = 0;
         maxDepth = 0;
+        finished = false;
         long start = System.currentTimeMillis();
-        for (int depth = 0; depth < cutoffDepth; depth++) {
+        for (int depth = 0; !finished && depth < cutoffDepth; depth += stepSize) {
             short[] state = boardToArray(board, playerOne);
+            exploredNodes = 0;
             bestMove = getMiniMaxMove(state, depth) + 1;
+//            System.err.println("Depth: " + depth + "  NumHits: " + numHits);
             maxDepth = depth;
             allExploredNodes += exploredNodes;
-            exploredNodes = 0;
         }
+        if (finished) {
+            System.err.println("Found optimal move after depth: " + maxDepth);
+        } else {
+            System.err.println("Cut off after: " + maxDepth);
+        }
+        System.err.format("Evaluated: %,d\n", allExploredNodes);
         return bestMove;
     }
 
@@ -71,7 +82,7 @@ public abstract class SuperAgent extends Agent {
             ourHouses = iterableToList(state._2());
             ourStore = ((Integer) state._4()).shortValue();
             theirHouses = iterableToList(state._1());
-            theirStore = ((Short) state._3()).shortValue();
+            theirStore = ((Integer) state._3()).shortValue();
         }
 
         // 0..n-1 our houses
@@ -220,6 +231,9 @@ public abstract class SuperAgent extends Agent {
                 }
             }
         }
+        if (maxVal == Integer.MAX_VALUE - 1) {
+            finished = true;
+        }
 
         /*
         System.out.println("-------------------------------------------------");
@@ -235,9 +249,13 @@ public abstract class SuperAgent extends Agent {
     }
 
     public int getMaxUtility(short[] board, int depth, int alpha, int beta) {
-        exploredNodes ++;
+        exploredNodes++;
         if (isFinished(board)) return getUtility(board);
         if (depth <= 0) return getHeuristic(board);
+
+        if (board[n] > numSeedsDividedByTwo) {
+            return Integer.MAX_VALUE-1;
+        }
 
         int maxVal = Integer.MIN_VALUE;
         short[] newBoard = new short[board.length];
@@ -261,6 +279,7 @@ public abstract class SuperAgent extends Agent {
                 }
             }
         }
+
         if (maxVal == Integer.MIN_VALUE) {
             return getUtility(board);
         } else {
@@ -269,9 +288,13 @@ public abstract class SuperAgent extends Agent {
     }
 
     public int getMinUtility(short[] board, int depth, int alpha, int beta) {
-        exploredNodes ++;
+        exploredNodes++;
         if (isFinished(board)) return getUtility(board);
         if (depth <= 0) return getHeuristic(board);
+
+        if (board[2*n+1] > numSeedsDividedByTwo) {
+            return Integer.MIN_VALUE+1;
+        }
 
         int minValue = Integer.MAX_VALUE;
         short[] newBoard = new short[board.length];
@@ -314,7 +337,7 @@ public abstract class SuperAgent extends Agent {
 
     @Override
     public int timeoutMove() {
-        System.err.format("timeoutMove: %d after depth: %d explored nodes: %,d/%,d\n", bestMove, maxDepth, exploredNodes, allExploredNodes+exploredNodes);
+        System.err.format("timeoutMove: %d after depth: %d explored nodes: %,d/%,d\n", bestMove, maxDepth, exploredNodes, allExploredNodes + exploredNodes);
         return bestMove;
     }
 
