@@ -26,6 +26,7 @@ public abstract class SuperAgent extends Agent {
     public boolean futility;
     public boolean both;
     public boolean sort;
+    private int globalMaxVal;
 
 
     @Override
@@ -36,18 +37,16 @@ public abstract class SuperAgent extends Agent {
         this.playerOne = playerOne;
         this.n = board.houses();
         this.numSeedsDividedByTwo = (Integer) board.getState()._3() + (Integer) board.getState()._4();
-
         for (Object o : board.getState()._1()) {
             this.numSeedsDividedByTwo += (Integer) o;
         }
         for (Object o : board.getState()._2()) {
             this.numSeedsDividedByTwo += (Integer) o;
         }
-
         this.numSeedsDividedByTwo /= 2;
-        System.err.println("numSeeds: " + numSeedsDividedByTwo);
 
         // TODO precompute openings or end games
+        // TODO should probably just call move() (and prevent the next move call from overwriting the result)
     }
 
     @Override
@@ -56,8 +55,7 @@ public abstract class SuperAgent extends Agent {
         bestMove = 0;
         maxDepth = 0;
         finished = false;
-        long start = System.currentTimeMillis();
-        for (int depth = 0; !finished && depth < cutoffDepth; depth += stepSize) {
+        for (int depth = 0; !finished && depth <= cutoffDepth; depth += stepSize) {
             short[] state = boardToArray(board, playerOne);
             exploredNodes = 0;
             bestMove = getMiniMaxMove(state, depth) + 1;
@@ -65,11 +63,18 @@ public abstract class SuperAgent extends Agent {
             allExploredNodes += exploredNodes;
         }
         if (finished) {
-            System.err.println("Found optimal move after depth: " + maxDepth);
+            if (globalMaxVal > 0) {
+                System.err.println(this.name() + ": I will win!:)");
+            } else if (globalMaxVal < 0) {
+                System.err.println(this.name() + ": I will loose!:(");
+            } else {
+                System.err.println(this.name() + "Nobody will win:/");
+            }
+            System.err.println("Exhausted full search tree at depth: " + maxDepth);
         } else {
             System.err.println("Cut off after: " + maxDepth);
         }
-        System.err.format("Evaluated: %,d\n", allExploredNodes);
+        System.err.format("Evaluated: %,d nodes\n", allExploredNodes);
         System.err.println("Move: " + bestMove);
         return bestMove;
     }
@@ -249,16 +254,7 @@ public abstract class SuperAgent extends Agent {
             finished = true;
         }
 
-        /*
-        System.out.println("-------------------------------------------------");
-        System.out.println("Board:");
-        for (int i = 0; i < board.length; i++) {
-            System.out.print(board[i] + " ");
-        }
-        System.out.println();
-        System.out.println("Max utiltiy: " + maxVal);
-        System.out.println("-------------------------------------------------");
-        */
+        globalMaxVal = maxVal;
         return maxMove;
     }
 
@@ -428,7 +424,7 @@ public abstract class SuperAgent extends Agent {
 
     @Override
     public int timeoutMove() {
-        System.err.format("timeoutMove: %d after depth: %d explored nodes: %,d/%,d\n", bestMove, maxDepth, exploredNodes, allExploredNodes + exploredNodes);
+        System.err.format(this.name() + " timeoutMove: %d after depth: %d explored nodes: %,d/%,d\n", bestMove, maxDepth, exploredNodes, allExploredNodes + exploredNodes);
         return bestMove;
     }
 

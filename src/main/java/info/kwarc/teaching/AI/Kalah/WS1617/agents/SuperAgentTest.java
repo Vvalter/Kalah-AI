@@ -20,10 +20,10 @@ import java.util.stream.Stream;
  */
 public class SuperAgentTest {
     public static void main(String[] args) {
-        SuperAgent a = new VariableDepthAgent(10000, 1);
-        SuperAgent b = new VariableDepthAgent(10000, 1);
+        SuperAgent a = new VariableDepthAgent(50, 1, "player1");
+        SuperAgent b = new VariableDepthAgent(50, 3, "player2");
         a.sort = false;
-        a.futility = false;
+        a.futility = true;
         b.sort = true;
         b.futility = true;
 
