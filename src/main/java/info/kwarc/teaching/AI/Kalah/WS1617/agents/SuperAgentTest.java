@@ -22,9 +22,9 @@ public class SuperAgentTest {
     public static void main(String[] args) {
         SuperAgent a = new VariableDepthAgent(50, 1, "player1");
         SuperAgent b = new VariableDepthAgent(50, 3, "player2");
-        a.sort = false;
+        a.sortAllNextMoves = false;
         a.futility = true;
-        b.sort = true;
+        b.sortAllNextMoves = true;
         b.futility = true;
 
         playGame(a, b, 6, 6);

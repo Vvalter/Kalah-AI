@@ -16,14 +16,16 @@ import java.util.List;
 public class Profiler {
     public static void main(String[] args) {
         int[] board = {
+//                6,6,6,6,6,6,0,
+//                6,6,6,6,6,6,0
 //                4,4,4,4,0,
 //                4,4,4,4,0
 //                4, 4, 4, 0,
 //                4, 4, 4, 0
-//                3,3,3,3,3,3,0,
-//                3,3,3,3,3,3,0 // -> 6
-                4,4,4,3,3,0,1,
-                4,4,3,0,4,0,2 // -> 5
+                3,3,3,3,3,3,0,
+                3,3,3,3,3,3,0 // -> 6
+//                4,4,4,3,3,0,1,
+//                4,4,3,0,4,0,2 // -> 5
 //                0,4,4,3,0,1,2,
 //                0,5,4,1,5,0,7 // -> 4
 //                0,4,4,0,1,2,3,
@@ -38,19 +40,35 @@ public class Profiler {
 //            1,1,1,1,1,0,
 //                1,1,1,1,1,0
         };
-        SuperAgent a = new VariableDepthAgent(22, 21);
-        a.futility = true;
-        a.sort = true;
+        for (int i = 0; i < 10; i++) {
+//            System.err.println("No sorting");
+//            SuperAgent a = new VariableDepthAgent(22, 21);
+//            a.futility = true;
+//            a.sortAllNextMoves = false;
+//            a.onlyChooseMax = false;
+//            doTestRun(a, board);
+            System.err.println("Only max");
+            SuperAgent c = new VariableDepthAgent(24, 23);
+            c.futility = true;
+            c.sortAllNextMoves = false;
+            c.onlyChooseMax = true;
+            doTestRun(c, board);
+            System.err.println("full sorting");
+            SuperAgent b = new VariableDepthAgent(24, 23);
+            b.futility = true;
+            b.sortAllNextMoves = true;
+            b.onlyChooseMax = false;
+            doTestRun(b, board);
+        }
 
-        doTestRun(a, board);
         /*
         for (int i = 0; i < 3; i++) {
             SuperAgent a = new VariableDepthAgent(17, 1);
-            a.sort = true;
-            System.err.println("sort");
+            a.sortAllNextMoves = true;
+            System.err.println("sortAllNextMoves");
             doTestRun(a, board);
-            a.sort = false;
-            System.err.println("no sort");
+            a.sortAllNextMoves = false;
+            System.err.println("no sortAllNextMoves");
             doTestRun(a, board);
         }
         */

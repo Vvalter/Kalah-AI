@@ -6,7 +6,7 @@ package info.kwarc.teaching.AI.Kalah.WS1617.agents;
 public class StandardAgent extends SuperAgent{
 
     @Override
-    public int getHeuristic(short[] board) {
+    public final int getHeuristic(short[] board) {
         return board[n] - board[2 * n + 1];
     }
 

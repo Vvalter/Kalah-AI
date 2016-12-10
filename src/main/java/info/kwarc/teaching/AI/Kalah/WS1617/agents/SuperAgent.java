@@ -25,14 +25,13 @@ public abstract class SuperAgent extends Agent {
 
     public boolean futility;
     public boolean both;
-    public boolean sort;
+    public boolean sortAllNextMoves;
+    public boolean onlyChooseMax;
     private int globalMaxVal;
 
 
     @Override
-    public void init(Board board, boolean playerOne) {
-        System.out.println("init");
-
+    public final void init(Board board, boolean playerOne) {
         this.board = board;
         this.playerOne = playerOne;
         this.n = board.houses();
@@ -50,7 +49,7 @@ public abstract class SuperAgent extends Agent {
     }
 
     @Override
-    public int move() {
+    public final int move() {
         allExploredNodes = 0;
         bestMove = 0;
         maxDepth = 0;
@@ -85,7 +84,7 @@ public abstract class SuperAgent extends Agent {
         return res;
     }
 
-    public short[] boardToArray(Board b, boolean playerOne) {
+    public final short[] boardToArray(Board b, boolean playerOne) {
         Tuple4<Iterable<Object>, Iterable<Object>, Object, Object> state = b.getState();
 
         List<Object> ourHouses;
@@ -127,7 +126,7 @@ public abstract class SuperAgent extends Agent {
      *              can be an enemy move too.
      * @return indicating if one is allowed to move again
      */
-    public static boolean makeMove(int n, short[] board, int house, short[] new_board) {
+    public final static boolean makeMove(int n, short[] board, int house, short[] new_board) {
         assert house != n && house != 2 * n + 1 : "house is a store";
         assert house >= 0 && house <= 2 * n : "house is too big or too small";
 
@@ -184,7 +183,7 @@ public abstract class SuperAgent extends Agent {
         return currentPosition == ourStore;
     }
 
-    public boolean isFinished(short[] board) {
+    public final boolean isFinished(short[] board) {
         boolean firstCase = true, secondCase = true;
         for (int i = 0; i < n; i++) {
             if (board[i] != 0) {
@@ -200,7 +199,7 @@ public abstract class SuperAgent extends Agent {
         return true;
     }
 
-    public int getUtility(short[] board) {
+    public final int getUtility(short[] board) {
         assert isFinished(board);
         int ours = board[n];
         int theirs = board[2 * n + 1];
@@ -278,27 +277,60 @@ public abstract class SuperAgent extends Agent {
         }
 
         int maxVal = Integer.MIN_VALUE;
-        ArrayList<short[]> nextBoards = new ArrayList<>();
-        ArrayList<short[]> nextBoardsAgain = new ArrayList<>();
+        short allBoard[][] = new short[n][2 * n + 2];
+        int start = 0, end = n - 1;
         for (int i = 0; i < n; i++) {
             if (board[i] > 0) {
-                short[] newBoard = new short[board.length];
-                boolean again = makeMove(n, board, i, newBoard);
+                short[] tmp = new short[2 * n + 2];
+                boolean again = makeMove(n, board, i, tmp);
+                short[] newBoard;
                 if (!again) {
-                    nextBoards.add(newBoard);
+                    newBoard = allBoard[end--];
                 } else {
-                    nextBoardsAgain.add(newBoard);
+                    newBoard = allBoard[start++];
+                }
+                for (int j = 0; j < 2 * n + 2; j++) {
+                    newBoard[j] = tmp[j];
                 }
             }
         }
 
-        if (sort) {
-            nextBoards.sort((a, b) -> getHeuristic(b) - getHeuristic(a));
-            nextBoardsAgain.sort((a, b) -> getHeuristic(b) - getHeuristic(a));
+        if (sortAllNextMoves) {
+            Arrays.sort(allBoard, 0, start, (a, b) -> getHeuristic(b) - getHeuristic(a));
+            Arrays.sort(allBoard, end + 1, n, (a, b) -> getHeuristic(b) - getHeuristic(a));
+        }
+        if (onlyChooseMax) {
+            int maxHeuristicAgain = 0, maxHeuristic = 0;
+            int maxAgainIndex = -1, maxIndex = -1;
+            for (int i = 0; i < start; i++) {
+                int heuristic = getHeuristic(allBoard[i]);
+                if (heuristic > maxHeuristicAgain) {
+                    maxHeuristicAgain = heuristic;
+                    maxAgainIndex = i;
+                }
+            }
+            for (int i = end + 1; i < n; i++) {
+                int heuristic = getHeuristic(allBoard[i]);
+                if (heuristic > maxHeuristic) {
+                    maxHeuristic = heuristic;
+                    maxIndex = i;
+                }
+            }
+            if (maxAgainIndex != -1) {
+                short[] tmp = allBoard[0];
+                allBoard[0] = allBoard[maxAgainIndex];
+                allBoard[maxAgainIndex] = allBoard[0];
+            }
+            if (maxIndex != -1) {
+                short[] tmp = allBoard[0];
+                allBoard[0] = allBoard[maxIndex];
+                allBoard[maxIndex] = allBoard[0];
+            }
         }
 
-        for (int i = 0; i < nextBoardsAgain.size(); i++) {
-            short[] newBoard = nextBoardsAgain.get(i);
+
+        for (int i = 0; i < start; i++) {
+            short[] newBoard = allBoard[i];
             int utility;
             utility = getMaxUtility(newBoard, depth - 1, alpha, beta);
             if (utility > maxVal) {
@@ -311,8 +343,8 @@ public abstract class SuperAgent extends Agent {
                 return maxVal;
             }
         }
-        for (int i = 0; i < nextBoards.size(); i++) {
-            short[] newBoard = nextBoards.get(i);
+        for (int i = end + 1; i < n; i++) {
+            short[] newBoard = allBoard[i];
             int utility;
             utility = getMinUtility(newBoard, depth - 1, alpha, beta);
             if (utility > maxVal) {
@@ -371,10 +403,40 @@ public abstract class SuperAgent extends Agent {
             }
         }
 
-        if (sort) {
+        if (sortAllNextMoves) {
             Arrays.sort(allBoard, 0, start, (a, b) -> getHeuristic(a) - getHeuristic(b));
             Arrays.sort(allBoard, end + 1, n, (a, b) -> getHeuristic(a) - getHeuristic(b));
         }
+
+        if (onlyChooseMax) {
+            int maxHeuristicAgain = 100000, maxHeuristic = 100000;
+            int maxAgainIndex = -1, maxIndex = -1;
+            for (int i = 0; i < start; i++) {
+                int heuristic = getHeuristic(allBoard[i]);
+                if (heuristic < maxHeuristicAgain) {
+                    maxHeuristicAgain = heuristic;
+                    maxAgainIndex = i;
+                }
+            }
+            if (maxAgainIndex != -1) {
+                short[] tmp = allBoard[0];
+                allBoard[0] = allBoard[maxAgainIndex];
+                allBoard[maxAgainIndex] = allBoard[0];
+            }
+            for (int i = end + 1; i < n; i++) {
+                int heuristic = getHeuristic(allBoard[i]);
+                if (heuristic < maxHeuristic) {
+                    maxHeuristic = heuristic;
+                    maxIndex = i;
+                }
+            }
+            if (maxIndex != -1) {
+                short[] tmp = allBoard[0];
+                allBoard[0] = allBoard[maxIndex];
+                allBoard[maxIndex] = allBoard[0];
+            }
+        }
+
 
 
         for (int i = 0; i < start; i++) {
