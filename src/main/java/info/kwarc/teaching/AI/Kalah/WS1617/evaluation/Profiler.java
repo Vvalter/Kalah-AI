@@ -18,26 +18,19 @@ public class Profiler {
         int[] board = {
 //                4,4,4,4,0,
 //                4,4,4,4,0
-                4, 4, 4, 0,
-                4, 4, 4, 0
-//                6,6,6,6,6,6,0,
-//                6,6,6,6,6,6,0
+//                4, 4, 4, 0,
+//                4, 4, 4, 0
+                6,6,6,6,6,6,0,
+                6,6,6,6,6,6,0
 //            1,1,1,1,1,0,
 //                1,1,1,1,1,0
         };
 
         for (int i = 0; i < 3; i++) {
-            SuperAgent a = new VariableDepthAgent(14, 1);
-            System.err.println("futility both");
-            a.futility = true;
-            a.both = true;
-            doTestRun(a, board);
-            System.err.println("only futility");
-            a.futility = true;
-            a.both = false;
-            doTestRun(a, board);
-            System.err.println("no futility");
+            SuperAgent a = new VariableDepthAgent(16, 1);
+            System.err.println("without sort");
             a.futility = false;
+            a.both = true;
             doTestRun(a, board);
         }
     }

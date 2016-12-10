@@ -24,6 +24,7 @@ public abstract class SuperAgent extends Agent {
 
     public boolean futility;
     public boolean both;
+    public boolean sort;
 
 
     @Override
@@ -256,7 +257,7 @@ public abstract class SuperAgent extends Agent {
         if (depth <= 0) return getHeuristic(board);
 
         if (board[n] > numSeedsDividedByTwo) {
-            return Integer.MAX_VALUE-1;
+            return Integer.MAX_VALUE - 1;
         }
 
         if (futility) {
@@ -271,25 +272,51 @@ public abstract class SuperAgent extends Agent {
         }
 
         int maxVal = Integer.MIN_VALUE;
-        short[] newBoard = new short[board.length];
+        ArrayList<short[]> nextBoards = new ArrayList<>();
+        ArrayList<short[]> nextBoardsAgain = new ArrayList<>();
         for (int i = 0; i < n; i++) {
             if (board[i] > 0) {
+                short[] newBoard = new short[board.length];
                 boolean again = makeMove(n, board, i, newBoard);
-                int utility;
-                if (again) {
-                    utility = getMaxUtility(newBoard, depth - 1, alpha, beta);
+                if (!again) {
+                    nextBoards.add(newBoard);
                 } else {
-                    utility = getMinUtility(newBoard, depth - 1, alpha, beta);
+                    nextBoardsAgain.add(newBoard);
                 }
-                if (utility > maxVal) {
-                    maxVal = utility;
-                }
-                if (utility > alpha) {
-                    alpha = utility;
-                }
-                if (utility >= beta) {
-                    break;
-                }
+            }
+        }
+
+        if (sort) {
+            nextBoards.sort((a, b) -> getHeuristic(b) - getHeuristic(a));
+            nextBoardsAgain.sort((a, b) -> getHeuristic(b) - getHeuristic(a));
+        }
+
+        for (int i = 0; i < nextBoardsAgain.size(); i++) {
+            short[] newBoard = nextBoardsAgain.get(i);
+            int utility;
+            utility = getMaxUtility(newBoard, depth - 1, alpha, beta);
+            if (utility > maxVal) {
+                maxVal = utility;
+            }
+            if (utility > alpha) {
+                alpha = utility;
+            }
+            if (utility >= beta) {
+                return maxVal;
+            }
+        }
+        for (int i = 0; i < nextBoards.size(); i++) {
+            short[] newBoard = nextBoards.get(i);
+            int utility;
+            utility = getMinUtility(newBoard, depth - 1, alpha, beta);
+            if (utility > maxVal) {
+                maxVal = utility;
+            }
+            if (utility > alpha) {
+                alpha = utility;
+            }
+            if (utility >= beta) {
+                return maxVal;
             }
         }
 
@@ -305,8 +332,8 @@ public abstract class SuperAgent extends Agent {
         if (isFinished(board)) return getUtility(board);
         if (depth <= 0) return getHeuristic(board);
 
-        if (board[2*n+1] > numSeedsDividedByTwo) {
-            return Integer.MIN_VALUE+1;
+        if (board[2 * n + 1] > numSeedsDividedByTwo) {
+            return Integer.MIN_VALUE + 1;
         }
         if (futility) {
             int lower = board[n] - numSeedsDividedByTwo;
@@ -320,26 +347,54 @@ public abstract class SuperAgent extends Agent {
         }
 
         int minValue = Integer.MAX_VALUE;
-        short[] newBoard = new short[board.length];
+        ArrayList<short[]> nextBoards = new ArrayList<>();
+        ArrayList<short[]> nextBoardsAgain = new ArrayList<>();
         for (int i = n + 1; i < 2 * n + 1; i++) {
             if (board[i] > 0) {
+                short[] newBoard = new short[board.length];
                 boolean again = makeMove(n, board, i, newBoard);
-                int utility;
-                if (again) {
-                    utility = getMinUtility(newBoard, depth - 1, alpha, beta);
+                if (!again) {
+                    nextBoards.add(newBoard);
                 } else {
-                    utility = getMaxUtility(newBoard, depth - 1, alpha, beta);
-                }
-                if (utility < minValue) {
-                    minValue = utility;
-                }
-                if (utility < beta) {
-                    beta = utility;
-                }
-                if (utility <= alpha) {
-                    break;
+                    nextBoardsAgain.add(newBoard);
                 }
             }
+        }
+
+        if (sort) {
+            nextBoards.sort((a, b) -> getHeuristic(b) - getHeuristic(a));
+            nextBoardsAgain.sort((a, b) -> getHeuristic(b) - getHeuristic(a));
+        }
+
+        for (int i = 0; i < nextBoardsAgain.size(); i++) {
+            short[] newBoard = nextBoardsAgain.get(i);
+            int utility;
+                utility = getMinUtility(newBoard, depth - 1, alpha, beta);
+            if (utility < minValue) {
+                minValue = utility;
+            }
+            if (utility < beta) {
+                beta = utility;
+            }
+            if (utility <= alpha) {
+                return minValue;
+            }
+
+        }
+        for (int i = 0; i < nextBoards.size(); i++) {
+            short[] newBoard = nextBoards.get(i);
+            int utility;
+            utility = getMaxUtility(newBoard, depth - 1, alpha, beta);
+            if (utility < minValue) {
+                minValue = utility;
+            }
+            if (utility < beta) {
+                beta = utility;
+            }
+            if (utility <= alpha) {
+                return minValue;
+            }
+
         }
         if (minValue == Integer.MAX_VALUE) {
             return getUtility(board);
