@@ -20,31 +20,14 @@ import java.util.stream.Stream;
  */
 public class SuperAgentTest {
     public static void main(String[] args) {
-//        testAlphaBeta();
-        Agent a = new VariableDepthAgent(30, 1);
-        Agent b = new RandomPlayer("Random");
+        SuperAgent a = new VariableDepthAgent(10000, 1);
+        SuperAgent b = new VariableDepthAgent(10000, 1);
+        a.sort = false;
+        a.futility = false;
+        b.sort = true;
+        b.futility = true;
 
-//        Agent tmp = a;a = b; b = tmp;
-
-        squelchStdout();
-        for (int i = 0; i < 1; i++) {
-            battle(a, b);
-        }
-
-        System.err.println(scoresA);
-        System.err.println(scoresB);
-
-        int aWon = 0, bWon = 0, tie = 0;
-        for (int i = 0; i < scoresA.size(); i++) {
-            if (scoresA.get(i) == scoresB.get(i)) {
-                tie++;
-            } else if (scoresA.get(i) > scoresB.get(i)) {
-                aWon++;
-            } else {
-                bWon++;
-            }
-        }
-        System.err.println(aWon + " + " + bWon + " ties: " + tie);
+        playGame(a, b, 6, 6);
     }
 
     public static void evaluate(Agent a, Agent b) {
@@ -255,7 +238,7 @@ public class SuperAgentTest {
 
     public static Result playGame(Agent a, Agent b, int houses, int seeds) {
         Game g = new Game(a, b, houses, seeds);
-        Result res = new Result(g.play(false));
+        Result res = new Result(g.play(true));
         return res;
     }
 

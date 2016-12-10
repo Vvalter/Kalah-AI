@@ -5,6 +5,7 @@ import info.kwarc.teaching.AI.Kalah.Board;
 import scala.Tuple4;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -34,7 +35,17 @@ public abstract class SuperAgent extends Agent {
         this.board = board;
         this.playerOne = playerOne;
         this.n = board.houses();
-        this.numSeedsDividedByTwo = this.n * ((int) board.getHouses(this).iterator().next());
+        this.numSeedsDividedByTwo = (Integer) board.getState()._3() + (Integer) board.getState()._4();
+
+        for (Object o : board.getState()._1()) {
+            this.numSeedsDividedByTwo += (Integer) o;
+        }
+        for (Object o : board.getState()._2()) {
+            this.numSeedsDividedByTwo += (Integer) o;
+        }
+
+        this.numSeedsDividedByTwo /= 2;
+        System.err.println("numSeeds: " + numSeedsDividedByTwo);
 
         // TODO precompute openings or end games
     }
@@ -50,7 +61,6 @@ public abstract class SuperAgent extends Agent {
             short[] state = boardToArray(board, playerOne);
             exploredNodes = 0;
             bestMove = getMiniMaxMove(state, depth) + 1;
-//            System.err.println("Depth: " + depth + "  NumHits: " + numHits);
             maxDepth = depth;
             allExploredNodes += exploredNodes;
         }
@@ -60,6 +70,7 @@ public abstract class SuperAgent extends Agent {
             System.err.println("Cut off after: " + maxDepth);
         }
         System.err.format("Evaluated: %,d\n", allExploredNodes);
+        System.err.println("Move: " + bestMove);
         return bestMove;
     }
 
@@ -156,11 +167,11 @@ public abstract class SuperAgent extends Agent {
                 // We can take this field and the opposite in our store
                 // The opposite side can be computed by 2*n-currentPosition
                 // TODO simplify
-//            if (new_board[2*n-currentPosition] != 0) {
+//                if (new_board[2 * n - currentPosition] != 0) {
                 new_board[ourStore] += 1 + new_board[2 * n - currentPosition];
                 new_board[2 * n - currentPosition] = 0;
                 new_board[currentPosition] = 0;
-//            }
+//                }
             }
         }
 
@@ -256,11 +267,10 @@ public abstract class SuperAgent extends Agent {
         if (isFinished(board)) return getUtility(board);
         if (depth <= 0) return getHeuristic(board);
 
-        if (board[n] > numSeedsDividedByTwo) {
-            return Integer.MAX_VALUE - 1;
-        }
-
         if (futility) {
+            if (board[n] > numSeedsDividedByTwo) {
+                return Integer.MAX_VALUE - 1;
+            }
             int lower = board[n] - numSeedsDividedByTwo;
             int upper = numSeedsDividedByTwo - board[2 * n + 1];
 
@@ -332,10 +342,10 @@ public abstract class SuperAgent extends Agent {
         if (isFinished(board)) return getUtility(board);
         if (depth <= 0) return getHeuristic(board);
 
-        if (board[2 * n + 1] > numSeedsDividedByTwo) {
-            return Integer.MIN_VALUE + 1;
-        }
         if (futility) {
+            if (board[2 * n + 1] > numSeedsDividedByTwo) {
+                return Integer.MIN_VALUE + 1;
+            }
             int lower = board[n] - numSeedsDividedByTwo;
             int upper = numSeedsDividedByTwo - board[2 * n + 1];
 
@@ -347,29 +357,34 @@ public abstract class SuperAgent extends Agent {
         }
 
         int minValue = Integer.MAX_VALUE;
-        ArrayList<short[]> nextBoards = new ArrayList<>();
-        ArrayList<short[]> nextBoardsAgain = new ArrayList<>();
+        short allBoard[][] = new short[n][2 * n + 2];
+        int start = 0, end = n - 1;
         for (int i = n + 1; i < 2 * n + 1; i++) {
             if (board[i] > 0) {
-                short[] newBoard = new short[board.length];
-                boolean again = makeMove(n, board, i, newBoard);
+                short[] tmp = new short[2 * n + 2];
+                boolean again = makeMove(n, board, i, tmp);
+                short[] newBoard;
                 if (!again) {
-                    nextBoards.add(newBoard);
+                    newBoard = allBoard[end--];
                 } else {
-                    nextBoardsAgain.add(newBoard);
+                    newBoard = allBoard[start++];
+                }
+                for (int j = 0; j < 2 * n + 2; j++) {
+                    newBoard[j] = tmp[j];
                 }
             }
         }
 
         if (sort) {
-            nextBoards.sort((a, b) -> getHeuristic(b) - getHeuristic(a));
-            nextBoardsAgain.sort((a, b) -> getHeuristic(b) - getHeuristic(a));
+            Arrays.sort(allBoard, 0, start, (a, b) -> getHeuristic(a) - getHeuristic(b));
+            Arrays.sort(allBoard, end + 1, n, (a, b) -> getHeuristic(a) - getHeuristic(b));
         }
 
-        for (int i = 0; i < nextBoardsAgain.size(); i++) {
-            short[] newBoard = nextBoardsAgain.get(i);
+
+        for (int i = 0; i < start; i++) {
+            short[] newBoard = allBoard[i];
             int utility;
-                utility = getMinUtility(newBoard, depth - 1, alpha, beta);
+            utility = getMinUtility(newBoard, depth - 1, alpha, beta);
             if (utility < minValue) {
                 minValue = utility;
             }
@@ -379,10 +394,9 @@ public abstract class SuperAgent extends Agent {
             if (utility <= alpha) {
                 return minValue;
             }
-
         }
-        for (int i = 0; i < nextBoards.size(); i++) {
-            short[] newBoard = nextBoards.get(i);
+        for (int i = end + 1; i < n; i++) {
+            short[] newBoard = allBoard[i];
             int utility;
             utility = getMaxUtility(newBoard, depth - 1, alpha, beta);
             if (utility < minValue) {
@@ -394,7 +408,6 @@ public abstract class SuperAgent extends Agent {
             if (utility <= alpha) {
                 return minValue;
             }
-
         }
         if (minValue == Integer.MAX_VALUE) {
             return getUtility(board);
