@@ -1,4 +1,3 @@
-
 package info.kwarc.teaching.AI.Kalah
 
 import java.io._
@@ -124,23 +123,23 @@ class Game(p1 : Agent, p2 : Agent)(houses : Int = 6, initSeeds : Int = 6) {
       else " " + i.toString + " "
     }
     def asStringPl(player : Player) : String = {
-      "      |" + (1 to houses).map(_ => "-----").mkString("|") + "|\n" +
-        "|-----|" + {player match {
-        case Player1 => (1 to houses).reverse.map(i => doIntStr(p2Houses(i)) ).mkString("|")
-        case Player2 => (1 to houses).reverse.map(i => doIntStr(p1Houses(i)) ).mkString("|")
-      }} + "|-----|\n" +
-        "|" + { player match {
-        case Player1 => doIntStr(p2Store)
-        case Player2 => doIntStr(p1Store)
-      } } + "|" + (1 to houses).map(_ => "-----").mkString("|") + "|" + { player match {
-        case Player1 => doIntStr(p1Store)
-        case Player2 => doIntStr(p2Store)
-      } } + "|\n" +
-        "|-----|" + {player match {
-        case Player1 => (1 to houses).map(i => doIntStr(p1Houses(i)) ).mkString("|")
-        case Player2 => (1 to houses).map(i => doIntStr(p2Houses(i)) ).mkString("|")
-      }} + "|-----|\n" +
         "      |" + (1 to houses).map(_ => "-----").mkString("|") + "|\n" +
+        "|-----|" + {player match {
+          case Player1 => (1 to houses).reverse.map(i => doIntStr(p2Houses(i)) ).mkString("|")
+          case Player2 => (1 to houses).reverse.map(i => doIntStr(p1Houses(i)) ).mkString("|")
+        }} + "|-----|\n" +
+        "|" + { player match {
+          case Player1 => doIntStr(p2Store)
+          case Player2 => doIntStr(p1Store)
+        } } + "|" + (1 to houses).map(_ => "-----").mkString("|") + "|" + { player match {
+          case Player1 => doIntStr(p1Store)
+          case Player2 => doIntStr(p2Store)
+        } } + "|\n" +
+          "|-----|" + {player match {
+          case Player1 => (1 to houses).map(i => doIntStr(p1Houses(i)) ).mkString("|")
+          case Player2 => (1 to houses).map(i => doIntStr(p2Houses(i)) ).mkString("|")
+        }} + "|-----|\n" +
+          "      |" + (1 to houses).map(_ => "-----").mkString("|") + "|\n" +
         "       " + (1 to houses).map(i => doIntStr(i)).mkString(" ")
     }
     def asString(pl : Agent) : String = pl match {
@@ -155,16 +154,18 @@ class Game(p1 : Agent, p2 : Agent)(houses : Int = 6, initSeeds : Int = 6) {
   sealed abstract class Player {
     val pl : Agent
     def move : Int = pl.move
-    def init = AgentAction.init(pl,GameBoard,true,10000)//pl.init(GameBoard,true)
+    def init : Unit
     def other : Player
   }
   private case object Player1 extends Player {
     val pl = p1
     def other = Player2
+    def init = AgentAction.init(pl,GameBoard,true,10000)//pl.init(GameBoard,true)
   }
   private case object Player2 extends Player {
     val pl = p2
     def other = Player1
+    def init = AgentAction.init(pl,GameBoard,false,10000)//pl.init(GameBoard,true)
   }
 
   private case class HouseIndex(pl : Player, hn : Int) {
@@ -231,14 +232,14 @@ class Game(p1 : Agent, p2 : Agent)(houses : Int = 6, initSeeds : Int = 6) {
         case e : java.util.concurrent.TimeoutException =>
           // println(java.time.Duration.between(t1,Instant.now()))
           pl.pl.timeoutMove
-        /*
-        if (!showboard) print(".")
-        scala.Console.flush()
-        exec.lastThread.getOrElse(throw new RuntimeException("Error killing thread: No thread started")).stop()
-        val ret = pl.pl.timeoutMove
-        // print(" Killed thread!")
-        ret
-        */
+          /*
+          if (!showboard) print(".")
+          scala.Console.flush()
+          exec.lastThread.getOrElse(throw new RuntimeException("Error killing thread: No thread started")).stop()
+          val ret = pl.pl.timeoutMove
+          // print(" Killed thread!")
+          ret
+          */
       }
     }
     // println(java.time.Duration.between(t1,Instant.now) + ": After catch")
