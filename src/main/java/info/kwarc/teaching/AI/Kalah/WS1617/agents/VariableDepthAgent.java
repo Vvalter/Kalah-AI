@@ -6,7 +6,7 @@ import info.kwarc.teaching.AI.Kalah.RandomPlayer;
 /**
  * Created by Simon Rainer on 12/9/16.
  */
-public class VariableDepthAgent extends StandardAgent {
+public abstract class VariableDepthAgent extends SuperAgent {
     private String name = null;
     public VariableDepthAgent(int cutoffDepth, int stepSize, String name) {
         this(cutoffDepth, stepSize);
@@ -26,7 +26,7 @@ public class VariableDepthAgent extends StandardAgent {
     }
 
     public static void main(String[] args) {
-        Agent a = new VariableDepthAgent(10, 1);
+        Agent a = new StandardAgent(10, 1, "StandardAgent");
 
         SuperAgentTest.playGame(a, new RandomPlayer("Random"), 6, 6);
     }

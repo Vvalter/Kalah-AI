@@ -2,6 +2,7 @@ package info.kwarc.teaching.AI.Kalah.WS1617.agents;
 
 import info.kwarc.teaching.AI.Kalah.Agent;
 import info.kwarc.teaching.AI.Kalah.Game;
+import info.kwarc.teaching.AI.Kalah.HumanPlayer;
 import info.kwarc.teaching.AI.Kalah.RandomPlayer;
 import scala.Tuple2;
 
@@ -20,14 +21,17 @@ import java.util.stream.Stream;
  */
 public class SuperAgentTest {
     public static void main(String[] args) {
-        TrollBot a = new TrollBot();
+//        TrollBot a = new TrollBot();
 //        SuperAgent b = new VariableDepthAgent(50, 3, "player2");
-        RandomPlayer b = new RandomPlayer("asdf");
-//        a.sortAllNextMoves = false;
-//        a.futility = true;
-//        b.sortAllNextMoves = true;
-//        b.futility = true;
+        SuperAgent a = new StandardAgent(50, 1, "No sorting");
+        SuperAgent b = new StandardAgent(50, 1, "Choosing max");
+        a.sortAllNextMoves = false;
+        a.onlyChooseMax = true;
+        b.sortAllNextMoves = true;
+        b.onlyChooseMax = false;
 
+//        Agent a = new HumanPlayer("first");
+//        Agent b = new HumanPlayer("second");
         playGame(a, b, 6, 6);
     }
 

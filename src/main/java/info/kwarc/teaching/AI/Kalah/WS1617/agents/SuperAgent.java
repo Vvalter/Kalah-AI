@@ -2,6 +2,7 @@ package info.kwarc.teaching.AI.Kalah.WS1617.agents;
 
 import info.kwarc.teaching.AI.Kalah.Agent;
 import info.kwarc.teaching.AI.Kalah.Board;
+import scala.Int;
 import scala.Tuple4;
 
 import java.util.ArrayList;
@@ -23,10 +24,10 @@ public abstract class SuperAgent extends Agent {
     private int bestMove;
     private boolean finished;
 
-    public boolean futility;
-    public boolean both;
-    public boolean sortAllNextMoves;
-    public boolean onlyChooseMax;
+    public boolean futility = true;
+    public boolean both = true;
+    public boolean sortAllNextMoves = false;
+    public boolean onlyChooseMax = true;
     private int globalMaxVal;
 
 
@@ -300,18 +301,18 @@ public abstract class SuperAgent extends Agent {
             Arrays.sort(allBoard, end + 1, n, (a, b) -> getHeuristic(b) - getHeuristic(a));
         }
         if (onlyChooseMax) {
-            int maxHeuristicAgain = 0, maxHeuristic = 0;
+            int maxHeuristicAgain = Integer.MIN_VALUE, maxHeuristic = Integer.MIN_VALUE;
             int maxAgainIndex = -1, maxIndex = -1;
             for (int i = 0; i < start; i++) {
                 int heuristic = getHeuristic(allBoard[i]);
-                if (heuristic > maxHeuristicAgain) {
+                if (heuristic >= maxHeuristicAgain) {
                     maxHeuristicAgain = heuristic;
                     maxAgainIndex = i;
                 }
             }
             for (int i = end + 1; i < n; i++) {
                 int heuristic = getHeuristic(allBoard[i]);
-                if (heuristic > maxHeuristic) {
+                if (heuristic >= maxHeuristic) {
                     maxHeuristic = heuristic;
                     maxIndex = i;
                 }
@@ -319,12 +320,12 @@ public abstract class SuperAgent extends Agent {
             if (maxAgainIndex != -1) {
                 short[] tmp = allBoard[0];
                 allBoard[0] = allBoard[maxAgainIndex];
-                allBoard[maxAgainIndex] = allBoard[0];
+                allBoard[maxAgainIndex] = tmp;
             }
             if (maxIndex != -1) {
-                short[] tmp = allBoard[0];
-                allBoard[0] = allBoard[maxIndex];
-                allBoard[maxIndex] = allBoard[0];
+                short[] tmp = allBoard[end+1];
+                allBoard[end+1] = allBoard[maxIndex];
+                allBoard[maxIndex] = tmp;
             }
         }
 
@@ -409,31 +410,31 @@ public abstract class SuperAgent extends Agent {
         }
 
         if (onlyChooseMax) {
-            int maxHeuristicAgain = 100000, maxHeuristic = 100000;
-            int maxAgainIndex = -1, maxIndex = -1;
+            int minHeuristicAgain = Integer.MAX_VALUE, minHeuristic = Integer.MAX_VALUE;
+            int minAgainIndex = -1, minIndex = -1;
             for (int i = 0; i < start; i++) {
                 int heuristic = getHeuristic(allBoard[i]);
-                if (heuristic < maxHeuristicAgain) {
-                    maxHeuristicAgain = heuristic;
-                    maxAgainIndex = i;
+                if (heuristic <= minHeuristicAgain) {
+                    minHeuristicAgain = heuristic;
+                    minAgainIndex = i;
                 }
-            }
-            if (maxAgainIndex != -1) {
-                short[] tmp = allBoard[0];
-                allBoard[0] = allBoard[maxAgainIndex];
-                allBoard[maxAgainIndex] = allBoard[0];
             }
             for (int i = end + 1; i < n; i++) {
                 int heuristic = getHeuristic(allBoard[i]);
-                if (heuristic < maxHeuristic) {
-                    maxHeuristic = heuristic;
-                    maxIndex = i;
+                if (heuristic <= minHeuristic) {
+                    minHeuristic = heuristic;
+                    minIndex = i;
                 }
             }
-            if (maxIndex != -1) {
+            if (minAgainIndex != -1) {
                 short[] tmp = allBoard[0];
-                allBoard[0] = allBoard[maxIndex];
-                allBoard[maxIndex] = allBoard[0];
+                allBoard[0] = allBoard[minAgainIndex];
+                allBoard[minAgainIndex] = tmp;
+            }
+            if (minIndex != -1) {
+                short[] tmp = allBoard[end+1];
+                allBoard[end+1] = allBoard[minIndex];
+                allBoard[minIndex] = tmp;
             }
         }
 
