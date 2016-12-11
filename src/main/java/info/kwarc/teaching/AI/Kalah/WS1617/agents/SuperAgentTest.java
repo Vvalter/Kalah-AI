@@ -20,12 +20,13 @@ import java.util.stream.Stream;
  */
 public class SuperAgentTest {
     public static void main(String[] args) {
-        SuperAgent a = new VariableDepthAgent(50, 1, "player1");
-        SuperAgent b = new VariableDepthAgent(50, 3, "player2");
-        a.sortAllNextMoves = false;
-        a.futility = true;
-        b.sortAllNextMoves = true;
-        b.futility = true;
+        TrollBot a = new TrollBot();
+//        SuperAgent b = new VariableDepthAgent(50, 3, "player2");
+        RandomPlayer b = new RandomPlayer("asdf");
+//        a.sortAllNextMoves = false;
+//        a.futility = true;
+//        b.sortAllNextMoves = true;
+//        b.futility = true;
 
         playGame(a, b, 6, 6);
     }
