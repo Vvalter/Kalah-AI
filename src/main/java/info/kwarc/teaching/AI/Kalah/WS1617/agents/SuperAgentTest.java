@@ -23,12 +23,12 @@ public class SuperAgentTest {
     public static void main(String[] args) {
 //        TrollBot a = new TrollBot();
 //        SuperAgent b = new VariableDepthAgent(50, 3, "player2");
-        SuperAgent a = new StandardAgent(50, 1, "No sorting");
-        SuperAgent b = new StandardAgent(50, 1, "Choosing max");
-        a.sortAllNextMoves = false;
+        SuperAgent a = new SmartAgent(50, 1, "No sorting");
+        SuperAgent b = new SmartAgent(50, 1, "Choosing max");
+//        a.sortAllNextMoves = true;
         a.onlyChooseMax = true;
         b.sortAllNextMoves = true;
-        b.onlyChooseMax = false;
+//        b.onlyChooseMax = true;
 
 //        Agent a = new HumanPlayer("first");
 //        Agent b = new HumanPlayer("second");

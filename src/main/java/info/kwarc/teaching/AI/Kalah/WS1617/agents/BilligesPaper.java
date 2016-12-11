@@ -29,7 +29,7 @@ public class BilligesPaper extends SuperAgent {
     }
 
     public static void main(String[] args) {
-        Agent a = new StandardAgent();
+        Agent a = new StandardAgent(1000, 1, "a");
         Agent b = new BilligesPaper();
 
         SuperAgentTest.evaluate(a, b);
